@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  parikng_database:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: admin
+    ports:
+      - 5432:5432
+    networks:
+      - parking_network
+
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    networks:
+      - parking_network
+
+  thing2db:
+    build:
+      context: .
+      dockerfile: Thing2DB/Dockerfile
+    image: thing2db
+    container_name: thing2db
+    depends_on:
+      - parikng_database
+    ports:
+      - 9848:9848
+    networks:
+      - parking_network
+
+volumes:
+  parikng_database:
+    driver: local
+
+networks:
+  parking_network:
+    name: parking_network
+    driver: bridge

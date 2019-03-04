@@ -1,0 +1,8 @@
+{
+	"host":"parikng_database",
+	"port": "5432",
+	"user": "postgres",
+	"password": "admin",
+	"sslmode": "disable",
+	"dbname": "parking_database"
+}
