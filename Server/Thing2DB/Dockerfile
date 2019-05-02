@@ -1,43 +1,39 @@
-# Select latest golang container.
+#build golang on debian
 FROM golang:1.12.0-stretch as builder
 
-# Install tools required to build the project
+#download dep for golang
 RUN go get github.com/golang/dep/cmd/dep
 
-# Gopkg.toml and Gopkg.lock lists project dependencies
-# These layers are only re-built when Gopkg files are updated
-COPY ./Thing2DB/src/dal/Gopkg.lock ./Thing2DB/src/dal/Gopkg.toml /go/src/dal/
+#copy Gopkg files and get dependencies
+COPY ./src/dal/Gopkg.lock ./src/dal/Gopkg.toml /go/src/dal/
 WORKDIR /go/src/dal/
-# Install library dependencies
 RUN dep ensure -vendor-only
 
-COPY ./Thing2DB/src/conn/Gopkg.lock ./Thing2DB/src/conn/Gopkg.toml /go/src/conn/
+#copy Gopkg files and get dependencies
+COPY ./src/conn/Gopkg.lock ./src/conn/Gopkg.toml /go/src/conn/
 WORKDIR /go/src/conn/
-# Install library dependencies
 RUN dep ensure -vendor-only
 
-COPY ./Thing2DB/src/main/Gopkg.lock ./Thing2DB/src/main/Gopkg.toml /go/src/main/
+#copy Gopkg files and get dependencies
+COPY ./src/main/Gopkg.lock ./src/main/Gopkg.toml /go/src/main/
 WORKDIR /go/src/main/
-# Install library dependencies
 RUN dep ensure -vendor-only
 
+#copy source files to builder
+COPY ./src /go/src
 
-# Copy all project and build it
-# This layer is rebuilt when ever a file has changed in the project directory
-COPY ./Thing2DB/src /go/src
-
-# Build all the projects
+#install and build from source
 WORKDIR /go
 RUN go install -v dal
 RUN go install -v conn
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/bin/main main
 
-# This results in a single layer image
+#make final image
 FROM debian:stretch as final
 WORKDIR /bin
 
-# Entry point is the Go webserver
+#copy program from builder and run
 COPY --from=builder /go/bin/main main
-COPY ./Thing2DB/config config
+COPY ./config config
 CMD ["chmod", "+x", "main"]
 CMD [ "./main" ]

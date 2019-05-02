@@ -5,6 +5,7 @@ device_id VARCHAR,
 lot_id    VARCHAR,
 UNIQUE (device_id, lot_id)
 );
+
 CREATE INDEX on lot_data(
 device_id, lot_id
 );

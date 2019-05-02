@@ -6,6 +6,8 @@ services:
     restart: always
     environment:
       POSTGRES_PASSWORD: admin
+    networks:
+      - parking_network
     volumes:
     - ./DB:/docker-entrypoint-initdb.d
     ports:
@@ -16,7 +18,8 @@ services:
     restart: always
     ports:
       - 8080:8080
-
+    networks:
+      - parking_network
 
   thing2db:
     build:
@@ -28,7 +31,8 @@ services:
       - parikng_database
     ports:
       - 9848:9848
-
+    networks:
+      - parking_network
       
   server2client:
     build:
@@ -40,7 +44,14 @@ services:
       - thing2db
     ports:
       - 9849:9849
+    networks:
+      - parking_network
 
 volumes:
   DB:
     driver: local
+
+networks:
+  parking_network:
+    name: parking_network
+    driver: bridge

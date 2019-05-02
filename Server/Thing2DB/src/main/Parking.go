@@ -28,7 +28,7 @@ func NewRouter() *mux.Router {
 
 func ReadBody(writer http.ResponseWriter, request *http.Request){
 	var data *espLotData = &espLotData{}
-	if 	tryReadRequestBody(request, data, writer)  {
+	if 	readRequestBody(request, data, writer)  {
 		conn.RequestChannel <- conn.CreateLotState(data.DevId, data.LotId, data.IsClear)
 		respondOK(writer)
 	}
@@ -37,7 +37,7 @@ func ReadBody(writer http.ResponseWriter, request *http.Request){
 
 func ReadMixed(writer http.ResponseWriter, request *http.Request) {
 	var state *state = &state{}
-	if tryReadRequestBody(request, state, writer) {
+	if readRequestBody(request, state, writer) {
 		vars := mux.Vars(request)
 		deviceId := vars["deviceId"]
 		lotId := vars["lotId"]
